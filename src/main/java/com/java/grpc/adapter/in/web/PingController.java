@@ -27,11 +27,26 @@ public class PingController {
     public ResponseEntity<PingWebResponse> pingUnary(@RequestBody PingWebRequest request) {
         LOG.info("Pinging address {}", request.getAddress());
         PingResponse grpcResponse = grpcClientConfiguration.getStub().ping(
-                PingRequest.newBuilder()
-                        .setAddress(request.getAddress())
-                        .build());
+                buildRequest(request));
 
         var response = new PingWebResponse(grpcResponse.getAddress(), grpcResponse.getTime());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/ping-server-stream")
+    public ResponseEntity<Void> pingServerCall(@RequestBody PingWebRequest request) {
+        LOG.info("Pinging address {}", request.getAddress());
+
+        grpcClientConfiguration.getStub().pingServerStream(buildRequest(request))
+                .forEachRemaining(response ->
+                        LOG.info("Ping response: {} - {} ", response.getAddress(), response.getTime())
+                );
+        return ResponseEntity.ok().build();
+    }
+
+    private PingRequest buildRequest(PingWebRequest request) {
+        return PingRequest.newBuilder()
+                .setAddress(request.getAddress())
+                .build();
     }
 }
