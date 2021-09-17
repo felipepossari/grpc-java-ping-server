@@ -1,0 +1,28 @@
+version: '3'
+services:
+  dynamo-db:
+    container_name: dynamodb
+    image: instructure/dynamo-local-admin
+    ports:
+      - 8000:8000
+    environment:
+      - AWS_ACCESS_KEY_ID=key
+      - AWS_ACCESS_SECRET_KEY=secret
+
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    hostname: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=dynamodb
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_SECRET_KEY=iti
+      - AWS_SECRET_ACCESS=iti
+      - USE_SSL=0
+    volumes:
+      - "/var/run/docker.dock:/var/run/docker.sock"
+      - "localstack_data:/tmp/localstack/data"
+volumes:
+  localstack_data:
