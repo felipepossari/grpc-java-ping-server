@@ -1,6 +1,6 @@
 package com.java.grpc.configuration;
 
-import com.java.grpc.adapter.in.grpc.PingServiceImpl;
+import com.java.grpc.PingServiceGrpc;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import org.slf4j.Logger;
@@ -16,10 +16,16 @@ public class GrpcServerConfiguration {
     private static final int SERVER_PORT = 50051;
     private Server server;
 
+    private final PingServiceGrpc.PingServiceImplBase pingServiceImplBase;
+
+    public GrpcServerConfiguration(PingServiceGrpc.PingServiceImplBase pingServiceImplBase) {
+        this.pingServiceImplBase = pingServiceImplBase;
+    }
+
     public void start() throws IOException {
         log.info("Starting gRPC server on port {}", SERVER_PORT);
         server = ServerBuilder.forPort(SERVER_PORT)
-                .addService(new PingServiceImpl())
+                .addService(pingServiceImplBase)
                 .build()
                 .start();
         log.info("gRPC server started.");
